@@ -2,7 +2,7 @@
   "name": "mongodb-pagination",
   "version": "1.0.0",
   "description": "an advance library to handle pagination of MongoDb",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,7 +23,11 @@
   "author": "Tobok Sitanggang",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mrbontor/MongoDb-Pagination/issues"
+    "url": "https://github.com/mrbontor/MongoDb-Pagination/issues",
+    "email": "mrbontor@gmail.com"
   },
-  "homepage": "https://github.com/mrbontor/MongoDb-Pagination#readme"
+  "homepage": "https://github.com/mrbontor/MongoDb-Pagination#readme",
+  "engines": {
+    "node": ">=14"
+  }
 }
