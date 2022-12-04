@@ -1,0 +1,28 @@
+# http://editorconfig.org
+
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.md]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+[*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+[*.{css,scss}]
+indent_style = space
+indent_size = 4
+
+[{package.json,.jsconfig.json}]
+indent_style = space
+indent_size = 2
+max_line_length=150
+printWidth= 150
