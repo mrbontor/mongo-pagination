@@ -2,7 +2,7 @@
   "name": "mongodb-pagination",
   "version": "1.0.1",
   "description": "an advance library to handle pagination for MongoDb Native Driver",
-  "main": "./lib/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
