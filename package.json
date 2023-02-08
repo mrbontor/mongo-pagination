@@ -1,7 +1,7 @@
 {
   "name": "mongodb-pagination",
-  "version": "1.0.0",
-  "description": "an advance library to handle pagination of MongoDb",
+  "version": "1.0.1",
+  "description": "an advance library to handle pagination for MongoDb Native Driver",
   "main": "./lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,11 +16,12 @@
     "Pagination",
     "MongoDb",
     "Driver",
+    "agregate",
     "datatable",
     "table",
     "keywords"
   ],
-  "author": "Tobok Sitanggang",
+  "author": "Tobok Sitanggang <mrbontor@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mrbontor/MongoDb-Pagination/issues",
