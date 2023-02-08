@@ -8,7 +8,7 @@ const { ValidateAgregation } = require('./validation');
  * @returns
  */
 const pipeline = (Query) => {
-    const { collectionName, uniqueId, projection} = Query;
+    const { collectionName, uniqueId, projection } = Query;
 
     /**
      * TODO
@@ -18,7 +18,7 @@ const pipeline = (Query) => {
         {
             $lookup: {
                 from: collectionName,
-                let: { uniqueId: { $toObjectId: `$${uniqueId}` } },
+                let: { [uniqueId]: { $toObjectId: `$${uniqueId}` } },
                 pipeline: [{ $match: { $expr: { $eq: ['$_id', `$$${uniqueId}`] } } }],
                 as: `${uniqueId}`
             }
@@ -33,7 +33,7 @@ const pipeline = (Query) => {
 };
 
 /**
- *
+ * @
  * @param {Array} aggregation
  * @returns
  */

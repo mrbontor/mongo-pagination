@@ -86,9 +86,10 @@ const handleFieldBoolean = (payload) => {
                     query[field] = { $in: stats };
                 }
             }
-        } else {
-            throw new Error('Field is not registered yet!');
         }
+        // else {
+        //     throw new Error('Field is not registered yet!');
+        // }
     });
 
     return query;
@@ -143,7 +144,7 @@ const buildQueryMongoPagination = (payload = {}, fieldToSearch = [], projection,
         const sortBy = setSorting(payload);
         let query = {};
 
-        const isStatusFieldExist = handleFieldStatus(payload);
+        const isStatusFieldExist = handleFieldBoolean(payload);
         if (isStatusFieldExist) query = isStatusFieldExist;
 
         if (search && fieldToSearch.length > 0) {
@@ -157,7 +158,7 @@ const buildQueryMongoPagination = (payload = {}, fieldToSearch = [], projection,
             { $limit: pageSize }
         ];
         if (aggregate.length > 0) {
-            //need to locate aggregation query exact below of the  `{ $match: query }`,
+            //need to put aggregation query exact below of the  `{ $match: query }`,
             finalQuery.splice(1, 0, ...aggregate);
         }
 
@@ -178,18 +179,12 @@ module.exports = {
      * @param {Object} projection
      * @param {Array} aggregate
      */
-    buildResponsePagination: async (
-        mongoConfig,
-        payload = {},
-        fieldToSearch = [],
-        projection = null,
-        aggregate = []
-    ) => {
+    buildPagination: async (mongoConfig, payload = {}, fieldToSearch = [], projection = null, aggregate = []) => {
         try {
             ValidateMongoQuery(mongoConfig);
 
             const queryAgregate = QueryAgregation(aggregate);
-            const queryMongo = buildQueryMongoPagination(payload, fieldSearch, projection, queryAgregate);
+            const queryMongo = buildQueryMongoPagination(payload, fieldToSearch, projection, queryAgregate);
 
             const results = await runQuery(mongoConfig, queryMongo);
 

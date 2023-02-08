@@ -36,10 +36,10 @@ const validation = {
                 throw new Error('Agregation query must have property `collectionName and uniqueId');
             }
 
-            const isObjectId = array.every((item) => validation.ObjectId(item.uniqueId));
-            if (!isObjectId) {
-                throw new Error('Unique Id should be in format ObjectId');
-            }
+            // const isObjectId = array.every((item) => validation.ObjectId(item.uniqueId));
+            // if (!isObjectId) {
+            //     throw new Error('Unique Id should be in format ObjectId');
+            // }
         }
     }
 };
