@@ -1,7 +1,6 @@
 const { MongoClient, ObjectId } = require('mongodb');
 
-const mongoUrl =
-    'mongodb+srv://yourUsername:uourPpassword@test/pagination?retryWrites=true&w=majority';
+const mongoUrl = 'mongodb+srv://yourUsername:uourPpassword@test/pagination?retryWrites=true&w=majority';
 const conOptions = { useNewUrlParser: true };
 
 let client = new MongoClient(mongoUrl, conOptions);
