@@ -2,5 +2,7 @@
 **/coverage
 **.git/
 .env
+.prettierignore
+.prettierrc.json
 .editorconfig
 .github
