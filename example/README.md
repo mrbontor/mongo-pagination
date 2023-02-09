@@ -1,6 +1,18 @@
-const client = require('./mongo');
-const mongoPagination = require('../');
+# Mongodb Pagination example
 
+I assume you already have server mongodb, you just need to replace the connection url to yours.
+
+example
+
+```js
+const mongoUrl = 'mongodb+srv://yourUsername:uourPpassword@test/pagination?retryWrites=true&w=majority';
+```
+
+Note: _remember to change `mongodb+srv` if your connection was developed in `local machine`_
+
+## Usage
+
+```js
 const Main = async () => {
     try {
 
@@ -20,7 +32,6 @@ const Main = async () => {
             page: 1, //default
             size: 10, //default
         }
-        // or const payload = {}
 
         const fieldSearch = ['first_name', 'last_name', 'email', 'gender', 'countryId', 'status'];
 
@@ -28,7 +39,7 @@ const Main = async () => {
         const aggregation = [
             {
                 collectionName: 'country', //country collection
-                uniqueId: 'countryId' //uniqueId
+                uniqueId: 'countryId' //uniqueId 
             }
         ];
 
@@ -48,3 +59,4 @@ const Main = async () => {
 }
 
 Main()
+```

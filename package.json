@@ -1,10 +1,10 @@
 {
   "name": "mongodb-pagination",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "an advance library to handle pagination for MongoDb Native Driver",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest -- tests/libs"
   },
   "repository": {
     "type": "git",
@@ -29,5 +29,25 @@
   "homepage": "https://github.com/mrbontor/mongo-pagination#readme",
   "engines": {
     "node": ">=14"
-  }
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "jest": "^29.4.2",
+    "sinon": "^15.0.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "collectCoverageFrom": [
+      "./libs/mongoPagination",
+      "./libs/validation",
+      "./libs/generateAgregation"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 90
+      }
+    }
+  },
+  "dependencies": {}
 }

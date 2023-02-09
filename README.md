@@ -12,6 +12,7 @@ this module supports and is tested against:
 
 ## Features
 
+- server side rendering
 - multiple aggregation/join
 - multiple fields search value
 - multiple filter fields
@@ -19,7 +20,7 @@ this module supports and is tested against:
 
 ## Documentation
 
-The function using `async` function
+This module using `async` function and the _query_ is using query `aggregation()`
 
 ### Arguments
 
@@ -103,7 +104,7 @@ ___Description___
 
 ### Usage
 
-there is an example in folder [example](./example`)
+there is an example in folder [example](./example), please check [README](/example/README.md#usage) for more detail.
 
 ```js
 const mongoPagination  = require(./)
@@ -142,7 +143,7 @@ return pagination
 }
 ```
 
-#### example output without agregation
+#### example output without agregation collection
 
 ```json
 {
@@ -201,9 +202,14 @@ return pagination
 
 ## TO DO
     - allow to use `projection` when join collection(s)
+    - enable to filter using field instead
 
 ## Tests
-coming in... [example](./example`)
+
+```sh
+npm test
+
+```
 
 ## Contributing
 
