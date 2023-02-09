@@ -17,9 +17,11 @@ const validation = {
      * @Object mongo.collection = collection name
      */
     ValidateMongoQuery: (mongo) => {
-        if (typeof mongo === undefined) throw new Error('Mongo must be defined!');
-        if (typeof mongo.client === undefined) throw new Error('Mongo Client must be defined!');
-        if (typeof mongo.collection === undefined) throw new Error('Collection Name must be defined');
+        if (typeof mongo === 'undefined') throw new Error('Mongo configuration must be initiated!');
+        if (typeof mongo.client === 'undefined') throw new Error('Property `client` must be defined!');
+        if (typeof mongo.collection === 'undefined') throw new Error('Property `collection` must be defined!');
+
+        return true
     },
 
     /**
@@ -30,12 +32,12 @@ const validation = {
      * @field projection
      */
     ValidateAgregation: (array) => {
+        if (typeof array === 'undefined') throw new Error('Agregation query is not initiated!');
         if (array.length > 0) {
             const isValidKeys = array.every((item) => item.collectionName && item.uniqueId);
             if (!isValidKeys) {
-                throw new Error('Agregation query must have property `collectionName and uniqueId');
+                throw new Error('Agregation query must have property `collectionName` and `uniqueId`');
             }
-
             // const isObjectId = array.every((item) => validation.ObjectId(item.uniqueId));
             // if (!isObjectId) {
             //     throw new Error('Unique Id should be in format ObjectId');
