@@ -22,6 +22,12 @@ this module supports and is tested against:
 
 This module using `async` function and the _query_ is using query `aggregation()`
 
+### Install
+
+```sh
+npm install mongodb-pagination
+```
+
 ### Arguments
 
 ```js
@@ -224,6 +230,7 @@ npm test
 
 [MIT Licence](./LICENSE)
 
+If my work helps you, please consider [![buying me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/purple_img.png)](https://www.buymeacoffee.com/mrbontor)
 
 ---
-[Back to top](#mongodb-pagination)
+[Back to top](#nodejs--mongodb-native-driver-pagination)

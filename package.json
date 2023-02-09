@@ -1,7 +1,7 @@
 {
   "name": "mongodb-pagination",
   "version": "1.0.2",
-  "description": "an advance library to handle pagination for MongoDb Native Driver",
+  "description": "an advance Node.js library to handle pagination of MongoDb Native Driver",
   "main": "index.js",
   "scripts": {
     "test": "jest -- tests/libs"
