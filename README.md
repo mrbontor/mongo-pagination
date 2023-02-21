@@ -28,12 +28,6 @@ This module is using `async` function and the _query_ is using query `aggregatio
 npm install mongodb-pagination
 ```
 
-### Install
-
-```sh
-npm install mongodb-pagination
-```
-
 ### Arguments
 
 ```js
@@ -256,7 +250,9 @@ Noted: i use [commitizen](https://github.com/commitizen/cz-cli) to handle commit
 
 [MIT Licence](./LICENSE)
 
-If my work helps you, please consider [![buying me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/purple_img.png)](https://www.buymeacoffee.com/mrbontor)
+If my work helps you, please consider
+[![buying me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/purple_img.png)](https://www.buymeacoffee.com/mrbontor)
 
 ---
+
 [Back to top](#nodejs--mongodb-native-driver-pagination)
