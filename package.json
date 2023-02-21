@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest -- tests/libs",
-    "commit":"git-cz",
+    "commit": "git-cz",
+    "acp": "git add . && npm run commit && git push",
     "prettier": "npx prettier libs --check",
     "prettier:fix": "npm run prettier -- \"libs/**/*\" --write",
     "semantic-release": "semantic-release --branches main"
