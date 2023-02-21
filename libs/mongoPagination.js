@@ -87,9 +87,6 @@ const handleFieldBoolean = (payload) => {
                 }
             }
         }
-        // else {
-        //     throw new Error('Field is not registered yet!');
-        // }
     });
 
     return query;
