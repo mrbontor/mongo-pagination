@@ -33,7 +33,7 @@ const Main = async () => {
             size: 10, //default
         }
 
-        const fieldSearch = ['first_name', 'last_name', 'email', 'gender', 'countryId', 'status'];
+        const fieldSearch = ['first_name', 'last_name', 'email', 'gender', 'countryId', 'status']; //required
 
         //collection aggregation/join
         const aggregation = [

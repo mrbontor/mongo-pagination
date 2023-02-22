@@ -7,20 +7,20 @@ MongoDb Pagination is a library to handle pagination data
 ## Compatibility
 
 this module supports and is tested against:
-- mongodb 3+ - lastest
 
+-   mongodb 3+ - lastest
 
 ## Features
 
-- server side rendering
-- multiple aggregation/join
-- multiple fields search value
-- multiple filter fields
-- pagination
+-   server side rendering
+-   multiple aggregation/join
+-   multiple fields search value
+-   multiple filter fields
+-   pagination / response in datatable format
 
 ## Documentation
 
-This module using `async` function and the _query_ is using query `aggregation()`
+This module is using `async` function and the _query_ is using query `aggregation()`
 
 ### Install
 
@@ -32,23 +32,27 @@ npm install mongodb-pagination
 
 ```js
 buildPagination: async (
-    mongoConfig, 
-    payload = {}, 
-    fieldToSearch = [], 
-    projection = null, 
+    mongoConfig,
+    payload = {},
+    fieldToSearch = [],
+    projection = null,
     aggregate = []){
 
         ......
     }
 ```
 
-___Description___
+**_Description_**
 
-- __mongoConfig__
+-   **mongoConfig**
 
-    is an `Object` that must contains keys `client` and main `collectionName`. this is used to declare mongodb client connection as injection
-    
-    example: 
+    Is an `Object` and it's required.
+
+    `mongoConfig` must contains keys `client` and the main `collectionName`. This is used to declare
+    `mongodb client connection` as injection.
+
+    example:
+
     ```js
     const mongoConfig = {
         client: client.db('databaseName'),
@@ -56,45 +60,61 @@ ___Description___
     };
     ```
 
-- __payload__
- 
-    this module allows to use POST,GET, etc. so it can be used depending on which one you are comfortable using
-    
-    Payload is an `Object` and its `optional` but have to set `null` or `{}` if there is no User's query.
-    payload will look for fields inside `fieldSearch` using param `search`
- 
-    example: 
+-   **payload**
+
+    Is an `Object` and it's `optional`.
+
+    Noted that if there is no User's query, then set it to be `null` or `{}` or `undefined`.
+
+    The `payload` will check the fields inside [fieldSearch](#__fieldSearch__) using key `search`
+
+    This module allows us to use POST,GET, etc. So it can be used depending on which one you are comfortable using.
+
+    _Note: i suggest to use `GET` method for best practice._
+
+    example:
+
     ```js
     const payload = {
         search: 'my first_name'
-    }
+    };
     ```
 
-- __fieldSearch__
- 
-    use this to contain any field to would be able to search in an Array.
+-   **fieldSearch**
 
-    example: 
+    Is an `Array` and it's `required`.
+    
+    _Since this module is used to handle pagination and datatable in client side, all of the fields should be searchable_
+
+    Use `fieldSearch` to make any field in the collection searchable. Means, when the `fieldSearch` is filled, then it will be searchable.
+
+    ex: you want to make fields `first_name`, `last_name`, `email` to be searcable, then put them like in example below.
+
+    example:
+
     ```js
-    const fieldSearch = ['first_name', 'last_name', 'email', 'countryId']
+    const fieldSearch = ['first_name', 'last_name', 'email'];
     ```
 
- - __projection__
- 
-    this is an `Object` to filter the output from parent `collection`. 
-        - if no filter, set it to `null`
-        - if there are fields that need to be hiddden, use this 
+-   **projection**
 
-    example with filter: 
+    Is an `Object` to filter the output from parent `collection`.
+
+         - if there is no filtering field(s), set it to be `null`.
+         - if there are fields that need to be `hiddden`, then put them to be `readable`.
+
+    example with readable filter: _assumes that there is password field_
+
     ```js
-    const fieldSearch = {first_name: 1, last_name: 1, email: 1, countryId: 1}
+    const fieldSearch = { first_name: 1, last_name: 1, email: 1 };
     ```
 
-  - __aggregation__
- 
-    this is an `Object` to join `collections`.
+-   **aggregation**
 
-    example with filter: 
+    Is an `Object` to do `join`/`relationship` of the `collections`.
+
+    example with join collection:
+
     ```js
     const aggregation = [
         {
@@ -175,7 +195,6 @@ return pagination
 }
 ```
 
-
 #### example output with agregation
 
 ```json
@@ -205,8 +224,8 @@ return pagination
 }
 ```
 
-
 ## TO DO
+
     - allow to use `projection` when join collection(s)
     - enable to filter using field instead
 
@@ -225,12 +244,15 @@ npm test
     4. Push to the branch: git push origin my-new-feature
     5. Submit a pull request :D
 
+Noted: i use [commitizen](https://github.com/commitizen/cz-cli) to handle commit message, and i'm very thankfull cause it make it easir to handle the versioning.
 
 ## License
 
 [MIT Licence](./LICENSE)
 
-If my work helps you, please consider [![buying me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/purple_img.png)](https://www.buymeacoffee.com/mrbontor)
+If my work helps you, please consider
+[![buying me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/purple_img.png)](https://www.buymeacoffee.com/mrbontor)
 
 ---
+
 [Back to top](#nodejs--mongodb-native-driver-pagination)

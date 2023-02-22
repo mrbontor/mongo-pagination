@@ -21,7 +21,7 @@ const validation = {
         if (typeof mongo.client === 'undefined') throw new Error('Property `client` must be defined!');
         if (typeof mongo.collection === 'undefined') throw new Error('Property `collection` must be defined!');
 
-        return true
+        return true;
     },
 
     /**
@@ -43,6 +43,7 @@ const validation = {
             //     throw new Error('Unique Id should be in format ObjectId');
             // }
         }
+        return true;
     }
 };
 

@@ -26,3 +26,9 @@ indent_style = space
 indent_size = 2
 max_line_length=150
 printWidth= 150
+
+[*.{yml}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+printWidth= 100
