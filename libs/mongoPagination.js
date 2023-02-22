@@ -34,15 +34,15 @@ const runQuery = async (mongo, query) => {
     return result;
 };
 
+/**
+ *
+ * @param {Object} payload
+ * @param {Array} fieldToSearch
+ * @param {Object} projection
+ * @param {Array} aggregate
+ * @returns
+ */
 module.exports = {
-    /**
-     *
-     * @param {Object} payload
-     * @param {Array} fieldToSearch
-     * @param {Object} projection
-     * @param {Array} aggregate
-     * @returns
-     */
     buildPagination: async (mongoConfig, payload = {}, fieldToSearch = [], projection = null, aggregate = []) => {
         try {
             ValidateMongoQuery(mongoConfig);
