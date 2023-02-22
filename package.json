@@ -4,7 +4,7 @@
   "description": "an advance Node.js library to handle pagination of MongoDb Native Driver",
   "main": "index.js",
   "scripts": {
-    "test": "jest -- tests/libs",
+    "test": "jest --",
     "commit": "git-cz",
     "acp": "git add . && npm run commit && git push",
     "prettier": "npx prettier libs --check",

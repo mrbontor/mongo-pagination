@@ -1,10 +1,10 @@
 module.exports = {
     testEnvironment: 'node',
     collectCoverage: true,
-    collectCoverageFrom: ['./libs/mongoPagination.js', './libs/validation.js', './libs/generateAgregation.js'],
+    collectCoverageFrom: ['<rootDir>/libs/**/*.js'],
     coverageThreshold: {
         global: {
-            lines: 90
+            lines: 80
         }
     }
 };

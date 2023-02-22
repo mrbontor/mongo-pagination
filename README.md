@@ -82,10 +82,11 @@ buildPagination: async (
 
 -   **fieldSearch**
 
-    Is an `Array` and it's `optional`.
+    Is an `Array` and it's `required`.
+    
+    _Since this module is used to handle pagination and datatable in client side, all of the fields should be searchable_
 
-    Use `fieldSearch` to make any field in the collection searchable. Means, when the `fieldSearch` is filled, with
-    key(s), then it will be searchable.
+    Use `fieldSearch` to make any field in the collection searchable. Means, when the `fieldSearch` is filled, then it will be searchable.
 
     ex: you want to make fields `first_name`, `last_name`, `email` to be searcable, then put them like in example below.
 
