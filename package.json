@@ -1,10 +1,10 @@
 {
   "name": "mongodb-pagination",
-  "version": "0.0.0-development",
+  "version": "1.0.2",
   "description": "an advance Node.js library to handle pagination of MongoDb Native Driver",
   "main": "index.js",
   "scripts": {
-    "test": "jest --",
+    "test": "jest -- tests",
     "commit": "git-cz",
     "acp": "git add . && npm run commit && git push",
     "prettier": "npx prettier libs --check",
@@ -38,7 +38,7 @@
   "devDependencies": {
     "chai": "^4.3.7",
     "cz-conventional-changelog": "^3.3.0",
-    "jest": "^29.4.2",
+    "jest": "^29.4.3",
     "prettier": "^2.8.4",
     "semantic-release": "^20.1.0",
     "sinon": "^15.0.1"

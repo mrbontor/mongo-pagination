@@ -27,7 +27,7 @@ const Main = async () => {
 
         //payload is user filter to the pagination
         const payload = {
-            search = 'from fieldSearch', // or set it to {} and/or null
+            search = 'from `fieldSearch`', // or set it to {} and/or null
             sortType: "ASC", // 1 | 0 | 'DESC'
             page: 1, //default
             size: 10, //default
@@ -39,15 +39,15 @@ const Main = async () => {
         const aggregation = [
             {
                 collectionName: 'country', //country collection
-                uniqueId: 'countryId' //uniqueId 
+                uniqueId: 'countryId' //uniqueId
             }
         ];
 
         const pagination = await mongoPagination.buildPagination(
             mongoConfig,
-            payload = {},
+            payload,
             fieldSearch,
-            projection = null,
+            projection,
             aggregation
         );
 
