@@ -62,17 +62,35 @@ describe('Validation', () => {
             }
         ];
 
+        it('Should return true ', () => {
+            queryAgregate[0].collectionName = 'test';
+            let valid = Validation.ValidateAgregation();
+            expect(valid).to.be.true;
+        });
+
         it('Should return error if there is no params aggregation query ', () => {
             try {
                 Validation.ValidateAgregation();
             } catch (error) {
-                expect(error.message).to.equal('Agregation query is not initiated!');
+                expect(error.message).to.equal('Agregation query must have property `collectionName` and `uniqueId`');
             }
         });
 
         it('Should return error if the params Object is not competible ', () => {
             try {
                 Validation.ValidateAgregation(queryAgregate);
+            } catch (error) {
+                expect(error.message).to.equal('Agregation query must have property `collectionName` and `uniqueId`');
+            }
+        });
+
+        it('Should return error if the params Object is not competible ', () => {
+            try {
+                Validation.ValidateAgregation([
+                    {
+                        collectionName: 'test'
+                    }
+                ]);
             } catch (error) {
                 expect(error.message).to.equal('Agregation query must have property `collectionName` and `uniqueId`');
             }

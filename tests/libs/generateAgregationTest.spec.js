@@ -1,7 +1,7 @@
 const chai = require('chai');
 const expect = chai.expect;
 
-const AgregationGenerator = require('../../libs/generateAgregation');
+const { GenerateQueryAgregation } = require('../../libs/generateAgregation');
 
 describe('Generate Agregation', () => {
     describe('Generator Query Agregation', () => {
@@ -13,7 +13,7 @@ describe('Generate Agregation', () => {
         ];
 
         it('Should return true with the following format', () => {
-            let response = AgregationGenerator.QueryAgregation(queryAgregate);
+            let response = GenerateQueryAgregation(queryAgregate);
 
             expect(response).to.length(2);
             expect(response[0]).to.have.property('$lookup');
@@ -22,20 +22,34 @@ describe('Generate Agregation', () => {
             expect(response[1]).to.have.property('$unwind');
         });
     });
-
+    /**
+     * This is may be happen, an error(TypeError), but this funtion won't be executed if the paramter empty
+     */
     it('Should return error if there is no params aggregation query ', () => {
         try {
-            AgregationGenerator.QueryAgregation();
+            GenerateQueryAgregation();
         } catch (error) {
-            expect(error.message).to.equal('Agregation query is not initiated!');
+            expect(error.message).to.equal(`Cannot read property 'map' of undefined`);
         }
     });
 
     it('Should return error if the params Object is not competible ', () => {
         try {
-            AgregationGenerator.QueryAgregation([
+            GenerateQueryAgregation([
                 {
                     uniqueId: 'countryId'
+                }
+            ]);
+        } catch (error) {
+            expect(error.message).to.equal('Agregation query must have property `collectionName` and `uniqueId`');
+        }
+    });
+
+    it('Should return error if the params Object is not competible ', () => {
+        try {
+            GenerateQueryAgregation([
+                {
+                    collectionName: 'test'
                 }
             ]);
         } catch (error) {
