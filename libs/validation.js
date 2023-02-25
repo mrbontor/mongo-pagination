@@ -13,8 +13,8 @@ const validation = {
     /**
      *
      * @param {Object} mongo
-     * @Object mongo.client = mongo connection
-     * @Object mongo.collection = collection name
+     * @param {void} mongo.client = mongo connection
+     * @param {string} mongo.collection = collection name
      */
     ValidateMongoQuery: (mongo) => {
         if (typeof mongo === 'undefined') throw new Error('Mongo configuration must be initiated!');
@@ -25,19 +25,17 @@ const validation = {
     },
 
     /**
-     *
-     * @param {Array} array - an array object with key `client` and `collection`
-     * @field client = mongo connection
-     * @field collection = collection name
-     * @field projection
+     * Validate payload aggregation
+     * @param {Array<{collectionName: string, uniqueId:string}>} array
+     * @returns
      */
     ValidateAgregation: (array) => {
-        if (typeof array === 'undefined') throw new Error('Agregation query is not initiated!');
-        if (array.length > 0) {
+        if (typeof array !== 'undefined' && array.length > 0) {
             const isValidKeys = array.every((item) => item.collectionName && item.uniqueId);
             if (!isValidKeys) {
                 throw new Error('Agregation query must have property `collectionName` and `uniqueId`');
             }
+            return true;
             // const isObjectId = array.every((item) => validation.ObjectId(item.uniqueId));
             // if (!isObjectId) {
             //     throw new Error('Unique Id should be in format ObjectId');

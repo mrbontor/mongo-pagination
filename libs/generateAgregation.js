@@ -1,14 +1,14 @@
 const { ValidateAgregation } = require('./validation');
+
 /**
- *
- * @param {Object} Query
- * @param {Object} Query.collectionName
- * @param {Object} Query.uniqueId
- * @param {Array} Query.projection
+ * Setup mongo Pipeline Agregation
+ * @param {Object} query
+ * @param {string} query.collectionName
+ * @param {string} query.uniqueId
  * @returns
  */
-const pipeline = (Query) => {
-    const { collectionName, uniqueId, projection } = Query;
+const pipeline = (query) => {
+    const { collectionName, uniqueId, projection } = query;
 
     /**
      * TODO
@@ -33,11 +33,11 @@ const pipeline = (Query) => {
 };
 
 /**
- * @
- * @param {Array} aggregation
+ * Generate mongo Pipeline Agregation
+ * @param {Array<{collectionName: string, uniqueId:string}>} aggregation
  * @returns
  */
-const generatePipeline = (aggregation) => {
+const generateQueryAgregation = (aggregation) => {
     ValidateAgregation(aggregation);
 
     const results = aggregation.map((query) => pipeline(query));
@@ -45,12 +45,5 @@ const generatePipeline = (aggregation) => {
 };
 
 module.exports = {
-    /**
-     *
-     * @param {Array} aggregation
-     * @returns
-     */
-    QueryAgregation: (aggregation) => {
-        return generatePipeline(aggregation);
-    }
+    GenerateQueryAgregation: generateQueryAgregation
 };

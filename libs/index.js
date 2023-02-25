@@ -1,1 +1,1 @@
-module.exports = require('./mongoPagination');
+module.exports = { buildPagination: require('./mongoPagination').buildPagination };

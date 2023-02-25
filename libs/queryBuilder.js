@@ -1,11 +1,15 @@
 const Config = require('../configs');
 
+const toLowerCaseString = (string) => {
+    return string.toString().toLocaleLowerCase();
+};
+
 /**
- *
+ * Get type sorting query
  * @param {String} type
  */
 const getTypeSort = (type) => {
-    const newType = type ? type.toString().toLocaleLowerCase() : '1';
+    const newType = type ? toLowerCaseString(type) : '1';
 
     switch (newType) {
         case '-1':
@@ -21,55 +25,21 @@ const getTypeSort = (type) => {
 };
 
 /**
- *
+ * Set sorting for query
  * @param {Object} payload
- * @object payload.sortType
- * @object payload.sortBy
+ * @param {number} payload.sortType
+ * @param {string} payload.sortBy
  * @returns
  */
 const setSorting = (payload) => {
-    const sortType = payload && payload.sortType ? getTypeSort(payload.sortType) : 1;
-    const sortBy = payload && payload.sortBy ? payload.sortBy : Config.default.sorting;
+    const sortType = payload?.sortType ? getTypeSort(payload.sortType) : 1;
+    const sortBy = payload?.sortBy ? payload.sortBy : Config.default.sorting;
 
-    let sorter = {};
-    sorter[sortBy] = sortType;
-    return sorter;
+    return { [sortBy]: sortType };
 };
 
 /**
- *
- * @param {Object} payload
- */
-const getSorting = (payload) => {
-    const sortType = getTypeSort(payload.sortType);
-    const sortBy = payload.sortBy || Config.default.sorting;
-
-    let sorter = {};
-    sorter[sortBy] = sortType == 1 ? Config.ascending : Config.descending;
-    return sorter;
-};
-
-/**
- *
- * @param {String} search
- * @param {Array} fields
- * @augments search
- * @example fields = ["username", "email"]
- */
-const fieldsSearch = (search, fields = []) => {
-    const results = [];
-    if (fields.length > 0) {
-        let querySearch = {};
-        fields.forEach((field) => {
-            querySearch[field] = { $regex: search, $options: 'i' };
-            results.push(querySearch);
-        });
-    }
-    return results;
-};
-
-/**
- * Filter data with Boolean String
+ * Filter data Boolean String
  * @param {Object} payload
  * @example status = "true, false"
  */
@@ -91,56 +61,69 @@ const handleFieldBoolean = (payload) => {
         }
     });
 
-    return Object.keys(query).length !== 0 ? query : null;
+    const resulst = Object.keys(query).length !== 0 ? query : null;
+    return resulst;
 };
 
 /**
- *
- * @param {Object} payload
- * @param {Array} fieldToSearch
- * @param {Object} projection
- * @param {Array} aggregate
+ * Set up fields to be searchable
+ * @param {String} search - string to be found
+ * @param {Array<string>} fieldToSearch - fields seachable
+ * @param {Object} projection - default fields for seachable if empty
  */
-const buildQueryMongoPagination = (payload = {}, fieldToSearch = [], projection, aggregate = []) => {
-    if (fieldToSearch.length === 0) {
-        process.exitCode = 1;
-        throw new Error('Field to search is required, at least 1!');
-    }
-    const search = payload.search || null;
-    const pageSize = parseInt(payload.size) || Config.default.size;
-    const pageNumber = parseInt(payload.page) || Config.default.page;
+const handleFieldSearch = (search, fieldToSearch) => {
+    const results = [];
+    let querySearch = {};
+    fieldToSearch.forEach((field) => {
+        results.push({ [field]: { $regex: search, $options: 'i' } });
+    });
+    return results;
+};
 
-    const sortBy = setSorting(payload);
+/**
+ * Generate Query pagination
+ * @param {Object} payload - an Object for user filter
+ * @param {string} payload.sortBy - sort data by sortBy
+ * @param {string|number} payload.sortType default 1 || ASC
+ * @param {string} payload.search - text to be search
+ *
+ * @param {Array<{string: number}>} fieldToSearch - filters fields that can be found
+ * @param {Object<number>} projection - filter output of query || if not setup, will be taken from collection
+ * @param {Array<{collectionName: string, uniqueId:string}>} aggregate -- agregation to other collection
+ * @returns
+ */
+const buildQueryMongoPagination = (payload, fieldToSearch, projection, aggregate) => {
     let query = {};
 
     const isStatusFieldExist = handleFieldBoolean(payload);
     if (isStatusFieldExist) query = isStatusFieldExist;
 
-    if (search && fieldToSearch.length > 0) {
-        query.$or = fieldsSearch(search, fieldToSearch);
+    const search = payload.search || null;
+    if (search && fieldToSearch && fieldToSearch.length > 0) {
+        const setFieldToSearch = handleFieldSearch(search, fieldToSearch);
+        query.$or = setFieldToSearch;
     }
 
     let finalQuery = [
         { $match: query },
-        { $sort: sortBy },
-        { $skip: (pageNumber - 1) * pageSize },
-        { $limit: pageSize }
+        { $sort: payload.sort },
+        { $skip: (payload.page - 1) * payload.size },
+        { $limit: payload.size },
+        { $project: projection }
     ];
     if (aggregate.length > 0) {
         //need to put aggregation query exact below of the  `{ $match: query }`,
         finalQuery.splice(1, 0, ...aggregate);
     }
 
-    if (projection) finalQuery.push({ $project: projection });
-
     return finalQuery;
 };
 
 module.exports = {
+    ToLowerCaseString: toLowerCaseString,
     GetTypeSort: getTypeSort,
     SetSorting: setSorting,
-    GetSorting: getSorting,
-    FieldsSearch: fieldsSearch,
+    HandleFieldSearch: handleFieldSearch,
     HandleFieldBoolean: handleFieldBoolean,
     BuildQueryMongoPagination: buildQueryMongoPagination
 };
