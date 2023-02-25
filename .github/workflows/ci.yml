@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [14.x, 16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
       - name: Checkout branch
@@ -34,8 +34,8 @@ jobs:
 
   release:
     name: Release
-    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: [test_pr]
     steps:
       - name: Checkout branch
