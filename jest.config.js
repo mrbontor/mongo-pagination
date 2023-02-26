@@ -10,9 +10,10 @@ module.exports = {
             statements: 90
         },
         'libs/mongoPagination.js': {
-            // branches: 20,
-            statements: 20,
-            lines: 20
+            branches: 50,
+            functions: 50,
+            lines: 50,
+            statements: 50
         }
     }
 };

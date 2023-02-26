@@ -172,6 +172,34 @@ buildPagination: async (
     ];
     ```
 
+    __**New Feature** in the `lastest version`.__
+    now its able to filter/search data in sub collections.
+
+    You only need to add new keys (`subSearch` and `fieldToSearch`) in paramater aggregation, the config will be like:
+
+
+    ```js
+    const aggregation = [
+        {
+            collectionName: 'country',
+            uniqueId: 'countryId',
+            subSearch: 'country name',
+            fieldToSearch: ['name'] // field name country
+        },
+        {
+            collectionName: 'city',
+            uniqueId: 'cityId',
+            subSearch: 'country name',
+            fieldToSearch: ['name'] // field name city
+        }
+    ];
+    ```
+
+    __Note: even though the field `countryId` and `cityId` are not provided in the [projection](#projection), the filtering/search will be also works.__
+
+
+
+
 ### Usage
 
 there is an example in folder [example](./example), please check [README](/example/README.md#usage) for more detail.

@@ -1,8 +1,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
 const expect = chai.expect;
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
 
 const MongoPagination = require('../../libs/mongoPagination');
 const AgregationGenerator = require('../../libs/generateAgregation');
