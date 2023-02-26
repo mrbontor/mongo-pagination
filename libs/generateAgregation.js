@@ -5,16 +5,14 @@ const { ValidateAgregation } = require('./validation');
  * @param {Object} query
  * @param {string} query.collectionName
  * @param {string} query.uniqueId
+ * @param {string} query.subSearch
+ * @param {Array<string>} query.fieldToSearch
  * @returns
  */
 const pipeline = (query) => {
-    const { collectionName, uniqueId, projection } = query;
+    const { collectionName, uniqueId, subSearch, fieldToSearch } = query;
 
-    /**
-     * TODO
-     * - custom on `pipeline` (join stage), it doesnt always have to do _query_ `$match` instead using `foreignField`
-     */
-    return [
+    const queryLookup = [
         {
             $lookup: {
                 from: collectionName,
@@ -30,6 +28,24 @@ const pipeline = (query) => {
             }
         }
     ];
+    if (subSearch && fieldToSearch && fieldToSearch.length > 0) {
+        const newearch = fieldToSearch.map((el) => {
+            const key = `${uniqueId}.${el}`;
+            return {
+                [key]: {
+                    $regex: subSearch,
+                    $options: 'i'
+                }
+            };
+        });
+        queryLookup.push({
+            $match: {
+                $or: newearch
+            }
+        });
+    }
+
+    return queryLookup;
 };
 
 /**
