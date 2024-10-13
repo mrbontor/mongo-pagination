@@ -69,6 +69,7 @@ const setDefaultSearchableFields = (fieldToSearch, fields) =>
 const setupDefaultPayload = (payload) => ({
     sort: SetSorting(payload),
     search: payload?.search || null,
+    filter: payload?.filter || [],
     page: parseInt(payload?.page) || Config.default.page,
     size: parseInt(payload?.size) || Config.default.size
 });
@@ -95,7 +96,6 @@ const buildPagination = async (mongoConfig, payload, fieldToSearch = [], project
 
         const queryAgregate = GenerateQueryAggregation(aggregate);
         const queryMongo = BuildQueryMongoPagination(newPayload, newFieldToSearch, newProjection, queryAgregate);
-
         const results = await runQuery(mongoConfig, queryMongo);
 
         delete newPayload.search;

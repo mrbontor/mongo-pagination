@@ -60,6 +60,20 @@ const handleFieldSearch = (search, fieldToSearch) =>
     fieldToSearch.map((field) => ({ [field]: { $regex: search, $options: 'i' } }));
 
 /**
+ * Set up fields to be filtered
+ * @param {Array<Array[[field, value, operator]]>} filters - [field, value, operator]
+ * @returns {Object}
+ */
+const buildFilterQuery = (filters) => {
+    const query = {};
+    filters.forEach(([field, value, operator]) => {
+        operator = operator || 'eq'; // default operator
+        query[field] = { [`$${operator}`]: value };
+    });
+    return query;
+};
+
+/**
  * Generate Query pagination
  * @param {Object} payload - an Object for user filter
  * @param {string[]} fieldToSearch - filters fields that can be found
@@ -68,10 +82,13 @@ const handleFieldSearch = (search, fieldToSearch) =>
  * @returns {Object[]}
  */
 const buildQueryMongoPagination = (payload, fieldToSearch, projection, aggregate) => {
-    const query = handleFieldBoolean(payload) || {};
-
+    let query = handleFieldBoolean(payload) || {};
     if (payload.search && fieldToSearch?.length) {
         query.$or = handleFieldSearch(payload.search, fieldToSearch);
+    }
+
+    if (payload.filter.length) {
+        query = { ...query, ...buildFilterQuery(payload.filter) };
     }
 
     const baseQuery = [
