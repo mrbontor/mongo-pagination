@@ -152,8 +152,6 @@ describe('Mongodb Pagination', () => {
         });
 
         it('Should return object even projection empty', async () => {
-            let xx = getOneDataStub.resolves(mongoConfig);
-            setDefaultProjectionStub(xx);
             let res = await MongoPagination.setDefaultProjection(mongoConfig, null);
 
             expect(res).with.property('first_name').to.equal(1);

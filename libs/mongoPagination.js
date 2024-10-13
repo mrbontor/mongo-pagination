@@ -31,7 +31,7 @@ const runQuery = async ({ client, collection }, query) => {
  * @param {{ client: any, collection: string }} mongo
  * @returns {Promise<Array>}
  */
-const getOneData = async ({ client, collection }) => client.collection(collection).find().limit(1).toArray();
+const getOneData = async ({ client, collection }) => await client.collection(collection).find().limit(1).toArray();
 
 /**
  * Set fields projection

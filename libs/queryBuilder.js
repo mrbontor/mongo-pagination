@@ -87,7 +87,7 @@ const buildQueryMongoPagination = (payload, fieldToSearch, projection, aggregate
         query.$or = handleFieldSearch(payload.search, fieldToSearch);
     }
 
-    if (payload.filter.length) {
+    if (payload?.filter?.length) {
         query = { ...query, ...buildFilterQuery(payload.filter) };
     }
 
