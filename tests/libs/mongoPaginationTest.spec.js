@@ -28,7 +28,6 @@ const mongoMock = (collection, mock) => {
     try {
         return {
             collection: (collection) => ({
-                // console.log('collection', collection);
                 find: (mockResult) => ({
                     limit: (mockResult) => ({
                         toArray: () => mockGetOneData
@@ -48,7 +47,6 @@ describe('Mongodb Pagination', () => {
         collection: 'user'
     };
 
-    console.log('lol', mongoConfig.client.collection().find(mockGetOneData).limit(1).toArray());
     const payload = {
         sortBy: 'first_name',
         sortType: 'desc',
@@ -68,26 +66,26 @@ describe('Mongodb Pagination', () => {
 
     let pagination,
         validatationStub,
-        generateQueryAgregationStub,
+        GenerateQueryAggregationStub,
         buildQueryMongoPaginationStub,
         setSortingStub,
         buildPaginationStub,
         runQueryStub,
         getOneDataStub,
         setDefaultProjectionStub,
-        setDefaultSearchAbleFieldsStub,
+        setDefaultSearchableFieldsStub,
         setupDefaultPayloadStub;
 
     beforeEach(async () => {
         validatationStub = sinon.spy(Validation, 'ValidateMongoQuery');
-        generateQueryAgregationStub = sinon.spy(AgregationGenerator, 'GenerateQueryAgregation');
+        GenerateQueryAggregationStub = sinon.spy(AgregationGenerator, 'GenerateQueryAggregation');
 
         buildQueryMongoPaginationStub = sinon.spy(QueryBuilderUtil, 'BuildQueryMongoPagination');
         setSortingStub = sinon.spy(QueryBuilderUtil, 'SetSorting');
 
         setupDefaultPayloadStub = sinon.spy(MongoPagination, 'setupDefaultPayload');
         setDefaultProjectionStub = sinon.spy(MongoPagination, 'setDefaultProjection');
-        setDefaultSearchAbleFieldsStub = sinon.spy(MongoPagination, 'setDefaultSearchAbleFields');
+        setDefaultSearchableFieldsStub = sinon.spy(MongoPagination, 'setDefaultSearchableFields');
         runQueryStub = sinon.stub(MongoPagination, 'runQuery').resolves(mockPagination);
         getOneDataStub = sinon.stub(MongoPagination, 'getOneData');
         buildPaginationStub = sinon.stub(MongoPagination, 'buildPagination').resolves(mockPagination);
@@ -95,34 +93,50 @@ describe('Mongodb Pagination', () => {
 
     afterEach(() => {
         validatationStub.restore();
-        generateQueryAgregationStub.restore();
+        GenerateQueryAggregationStub.restore();
         buildQueryMongoPaginationStub.restore();
         setSortingStub.restore();
 
         setupDefaultPayloadStub.restore();
         setDefaultProjectionStub.restore();
-        setDefaultSearchAbleFieldsStub.restore();
+        setDefaultSearchableFieldsStub.restore();
         runQueryStub.restore();
         getOneDataStub.restore();
         buildPaginationStub.restore();
     });
 
+    describe('runQuery', () => {
+        it('Should return object', async () => {
+            try {
+                runQueryStub(payload)
+                let res = await MongoPagination.runQuery(payload);
+                expect(runQueryStub.calledOnce).to.be.true;
+                expect(res).with.property('sort').to.deep.equal({ updatedAt: 'ASC' });
+                expect(res).with.property('page').to.equal(1);
+                expect(res).with.property('size').to.equal(10);
+                expect(res).with.property('totalRecord').to.equal(0);
+                expect(res).with.property('totalPage').to.equal(0);
+                expect(res).with.property('data').length.least(1);
+            } catch (error) {}
+        });
+    });
+
     describe('setupDefaultPayload', () => {
         it('Should return object', (done) => {
             let res = MongoPagination.setupDefaultPayload(payload);
-            expect(res).to.have.property('sort').to.deep.equal({ first_name: -1 });
-            expect(res).to.have.property('search').to.equal('my first_name');
-            expect(res).to.have.property('size').to.equal(2);
-            expect(res).to.have.property('page').to.equal(2);
+            expect(res).with.property('sort').to.deep.equal({ first_name: -1 });
+            expect(res).with.property('search').to.equal('my first_name');
+            expect(res).with.property('size').to.equal(2);
+            expect(res).with.property('page').to.equal(2);
             done();
         });
 
         it('Should return object even projection empty', (done) => {
             let res = MongoPagination.setupDefaultPayload();
-            expect(res).to.have.property('sort').to.deep.equal({ updatedAt: 1 });
-            expect(res).to.have.property('search').to.be.null;
-            expect(res).to.have.property('size').to.equal(10);
-            expect(res).to.have.property('page').to.equal(1);
+            expect(res).with.property('sort').to.deep.equal({ updatedAt: 1 });
+            expect(res).with.property('search').to.be.null;
+            expect(res).with.property('size').to.equal(10);
+            expect(res).with.property('page').to.equal(1);
             done();
         });
     });
@@ -133,34 +147,29 @@ describe('Mongodb Pagination', () => {
                 let res = await MongoPagination.setDefaultProjection(mongoConfig, projection);
                 expect(setDefaultProjectionStub.calledOnce).to.be.true;
                 expect(getOneDataStub.calledOnce).to.be.false;
-                expect(res).to.have.property('first_name').to.equal(1);
+                expect(res).with.property('first_name').to.equal(1);
             } catch {}
         });
 
         it('Should return object even projection empty', async () => {
-            // try {
-            let xx = getOneDataStub.resolves(mongoConfig);
-            setDefaultProjectionStub(xx);
-            // console.log(getOneDataStub);
             let res = await MongoPagination.setDefaultProjection(mongoConfig, null);
 
-            expect(res).to.have.property('first_name').to.equal(1);
-            expect(res).to.have.property('createdAt').to.equal(1);
-            expect(res).to.have.property('updatedAt').to.equal(1);
-            // } catch {}
+            expect(res).with.property('first_name').to.equal(1);
+            expect(res).with.property('createdAt').to.equal(1);
+            expect(res).with.property('updatedAt').to.equal(1);
         });
     });
 
-    describe('setDefaultSearchAbleFields', () => {
+    describe('setDefaultSearchableFields', () => {
         it('Should return object', (done) => {
-            let res = MongoPagination.setDefaultSearchAbleFields(fieldSearch, projection);
+            let res = MongoPagination.setDefaultSearchableFields(fieldSearch, projection);
             expect(res).to.have.length.at.least(1);
             expect(res[0]).to.equal('first_name');
             done();
         });
 
         it('Should return object even fieldToSearch empty', (done) => {
-            let res = MongoPagination.setDefaultSearchAbleFields({}, projection);
+            let res = MongoPagination.setDefaultSearchableFields({}, projection);
             expect(res).to.have.length.at.least(1);
             expect(res[0]).to.equal('first_name');
             done();
@@ -176,9 +185,9 @@ describe('Mongodb Pagination', () => {
                 // let xx = getOneDataStub.resolves(mongoConfig);
                 setupDefaultPayloadStub(newPayload);
                 setDefaultProjectionStub(mongoConfig, projection);
-                setDefaultSearchAbleFieldsStub(fieldSearch, projection);
+                setDefaultSearchableFieldsStub(fieldSearch, projection);
 
-                generateQueryAgregationStub(aggregation);
+                GenerateQueryAggregationStub(aggregation);
                 buildQueryMongoPaginationStub(newPayload, fieldSearch, projection, aggregation);
 
                 buildPaginationStub.resolves(mockPagination);
@@ -193,18 +202,18 @@ describe('Mongodb Pagination', () => {
                 expect(validatationStub.calledOnce).to.be.true;
                 expect(setupDefaultPayloadStub.calledOnce).to.be.true;
                 expect(setDefaultProjectionStub.calledOnce).to.be.true;
-                expect(setDefaultSearchAbleFieldsStub.calledOnce).to.be.true;
+                expect(setDefaultSearchableFieldsStub.calledOnce).to.be.true;
 
-                expect(generateQueryAgregationStub.calledOnce).to.be.true;
+                expect(GenerateQueryAggregationStub.calledOnce).to.be.true;
                 expect(buildQueryMongoPaginationStub.calledOnce).to.be.true;
 
                 expect(buildPaginationStub.calledOnce).to.be.true;
 
-                expect(pagination).to.have.property('sort');
-                expect(pagination).to.have.property('page');
-                expect(pagination).to.have.property('size');
-                expect(pagination).to.have.property('totalRecord');
-                expect(pagination).to.have.property('data');
+                expect(pagination).with.property('sort');
+                expect(pagination).with.property('page');
+                expect(pagination).with.property('size');
+                expect(pagination).with.property('totalRecord');
+                expect(pagination).with.property('data');
             } catch (error) {}
         });
 
@@ -214,13 +223,13 @@ describe('Mongodb Pagination', () => {
             } catch (error) {
                 expect(validatationStub.calledOnce).to.be.true;
                 expect(buildQueryMongoPaginationStub.calledOnce).to.be.true;
-                expect(generateQueryAgregationStub.calledOnce).to.be.true;
+                expect(GenerateQueryAggregationStub.calledOnce).to.be.true;
                 expect(setSortingStub.calledOnce).to.be.true;
 
-                expect(generateQueryAgregationStub.calledOnce).to.be.false;
+                expect(GenerateQueryAggregationStub.calledOnce).to.be.false;
                 expect(setSortingStub.calledOnce).to.be.false;
 
-                expect(error).to.have.property('message').equal('Mongo configuration must be initiated!');
+                expect(error).with.property('message').equal('Mongo configuration must be initiated!');
             }
         });
         it('Should return err validation when mongoConfig property is not set', async () => {
@@ -228,10 +237,10 @@ describe('Mongodb Pagination', () => {
                 await MongoPagination.buildPagination({ client: {} });
             } catch (error) {
                 expect(validatationStub.calledOnce).to.be.true;
-                expect(generateQueryAgregationStub.calledOnce).to.be.false;
+                expect(GenerateQueryAggregationStub.calledOnce).to.be.false;
                 expect(setSortingStub.calledOnce).to.be.false;
 
-                expect(error).to.have.property('message').equal('Property `collection` must be defined!');
+                expect(error).with.property('message').equal('Property `collection` must be defined!');
             }
         });
 
@@ -240,10 +249,10 @@ describe('Mongodb Pagination', () => {
                 await MongoPagination.buildPagination({ collection: {} });
             } catch (error) {
                 expect(validatationStub.calledOnce).to.be.true;
-                expect(generateQueryAgregationStub.calledOnce).to.be.false;
+                expect(GenerateQueryAggregationStub.calledOnce).to.be.false;
                 expect(setSortingStub.calledOnce).to.be.false;
 
-                expect(error).to.have.property('message').equal('Property `client` must be defined!');
+                expect(error).with.property('message').equal('Property `client` must be defined!');
             }
         });
     });

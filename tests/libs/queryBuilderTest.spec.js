@@ -44,7 +44,15 @@ describe('Mongodb Pagination', () => {
         }
     ];
 
-    let getTypeSortStub, setSortingStub, fieldsSearchStub, handleFieldBooleanStub, toLowerCaseStringStub;
+    let getTypeSortStub,
+        setSortingStub,
+        fieldsSearchStub,
+        handleFieldBooleanStub,
+        toLowerCaseStringStub,
+        buildQueryMongoPaginationStub,
+        buildProjectionSubQueryStub,
+        buildSubQueryAndProjectionStub,
+        buildSearchSubQueryStub;
 
     beforeEach(async () => {
         toLowerCaseStringStub = sinon.spy(QueryBuilderUtil, 'ToLowerCaseString');
@@ -52,6 +60,10 @@ describe('Mongodb Pagination', () => {
         setSortingStub = sinon.spy(QueryBuilderUtil, 'SetSorting');
         fieldsSearchStub = sinon.spy(QueryBuilderUtil, 'HandleFieldSearch');
         handleFieldBooleanStub = sinon.spy(QueryBuilderUtil, 'HandleFieldBoolean');
+        buildQueryMongoPaginationStub = sinon.spy(QueryBuilderUtil, 'BuildQueryMongoPagination');
+        buildProjectionSubQueryStub = sinon.spy(QueryBuilderUtil, 'BuildProjectionSubQuery');
+        buildSubQueryAndProjectionStub = sinon.spy(QueryBuilderUtil, 'BuildSubQueryAndProjection');
+        buildSearchSubQueryStub = sinon.spy(QueryBuilderUtil, 'BuildSearchSubQuery');
     });
 
     afterEach(() => {
@@ -60,6 +72,10 @@ describe('Mongodb Pagination', () => {
         setSortingStub.restore();
         fieldsSearchStub.restore();
         handleFieldBooleanStub.restore();
+        buildQueryMongoPaginationStub.restore();
+        buildProjectionSubQueryStub.restore();
+        buildSubQueryAndProjectionStub.restore();
+        buildSearchSubQueryStub.restore();
     });
 
     describe('ToLowerCaseStringStub', () => {
@@ -143,14 +159,14 @@ describe('Mongodb Pagination', () => {
             getTypeSortStub(sorter);
 
             expect(getTypeSortStub.calledOnce).to.be.true;
-            expect(setSorting).to.have.property('name').to.equal(-1);
+            expect(setSorting).with.property('name').to.equal(-1);
             done();
         });
 
         it('Should return default obejct sort By updatedAt ASC without parameter', (done) => {
             const setSorting = QueryBuilderUtil.SetSorting();
 
-            expect(setSorting).to.have.property('updatedAt').to.equal(1);
+            expect(setSorting).with.property('updatedAt').to.equal(1);
             expect(getTypeSortStub.calledOnce).to.be.false;
             done();
         });
@@ -161,7 +177,7 @@ describe('Mongodb Pagination', () => {
         it('Should return query Mongo seearh `like` in array format', (done) => {
             const search = QueryBuilderUtil.HandleFieldSearch(payload, searchAble, projection);
             expect(search).to.have.length.at.least(1);
-            expect(search[0]).to.have.property('name');
+            expect(search[0]).with.property('name');
             done();
         });
 
@@ -180,8 +196,8 @@ describe('Mongodb Pagination', () => {
         it('Should return an array when value param search is string', (done) => {
             const boolValue = QueryBuilderUtil.HandleFieldBoolean({ status: 'true, false' });
 
-            expect(boolValue).to.have.property('status');
-            expect(boolValue.status).to.have.property('$in');
+            expect(boolValue).with.property('status');
+            expect(boolValue.status).with.property('$in');
             expect(boolValue.status['$in']).to.have.length.at.least(1);
             done();
         });
@@ -189,8 +205,8 @@ describe('Mongodb Pagination', () => {
         it('Should return an array when param value param search is object/boolean', (done) => {
             const boolValue = QueryBuilderUtil.HandleFieldBoolean({ status: true });
 
-            expect(boolValue).to.have.property('status');
-            expect(boolValue.status).to.have.property('$in');
+            expect(boolValue).with.property('status');
+            expect(boolValue.status).with.property('$in');
             expect(boolValue.status['$in']).to.have.length.at.least(1);
             done();
         });
@@ -222,6 +238,7 @@ describe('Mongodb Pagination', () => {
             expect(fieldsSearchStub.calledOnce).to.be.true;
 
             expect(query).to.have.length.at.least(4);
+            expect(query.length).to.equal(6);
             expect(query).to.deep.include(mockQueryPagination1[0]);
             done();
         });
@@ -354,6 +371,86 @@ describe('Mongodb Pagination', () => {
                 expect(error.message).to.equal('im error');
                 done();
             }
+        });
+    });
+
+    describe('buildProjectionSubQuery', () => {
+        it('Should return null when no payload', (done) => {
+            const query = QueryBuilderUtil.BuildProjectionSubQuery();
+            expect(query).to.be.null;
+            done();
+        });
+
+        it('Should be success and return true when payload is object', (done) => {
+            let project = { name: 1, population: 1 };
+            const query = QueryBuilderUtil.BuildProjectionSubQuery(project);
+            expect(query).with.property('$project').with.property('name').equal(1);
+            expect(query).with.property('$project').with.property('population').equal(1);
+            done();
+        });
+
+        it('Should be success and return true when payload is array', (done) => {
+            let newPayload = ['name', 'population'];
+            const query = QueryBuilderUtil.BuildProjectionSubQuery(newPayload);
+            expect(query).with.property('$project').with.property('name').equal(1);
+            expect(query).with.property('$project').with.property('population').equal(1);
+            done();
+        });
+    });
+
+    describe('buildSubQueryAndProjection', () => {
+        it('Should return query without projection', () => {
+            const queryAggregationSuccess = {
+                collectionName: 'country',
+                uniqueId: 'countryId'
+            };
+            const query = QueryBuilderUtil.BuildSubQueryAndProjection(queryAggregationSuccess);
+            expect(buildProjectionSubQueryStub.calledOnce).to.be.false;
+
+            expect(query[0]).with.property('$lookup');
+            expect(query[0]['$lookup']).with.property('from').equal('country');
+            expect(query[0]['$lookup']).with.property('let').with.property('countryId');
+            expect(query[0]['$lookup']).with.property('pipeline').with.length(1);
+            expect(query[0]['$lookup']).with.property('as').equal('countryId');
+            expect(query[1]).with.property('$unwind');
+            expect(query[1]['$unwind']).with.property('path').equal('$countryId');
+        });
+
+        it('Should return query with projection', () => {
+            const queryAggregationSuccess = {
+                collectionName: 'country',
+                uniqueId: 'countryId',
+                projection: ['name', 'id']
+            };
+
+            buildProjectionSubQueryStub(queryAggregationSuccess)
+            const query = QueryBuilderUtil.BuildSubQueryAndProjection(queryAggregationSuccess);
+            expect(buildProjectionSubQueryStub.calledOnce).to.be.true;
+            expect(query[0]).with.property('$lookup');
+            expect(query[0]['$lookup']).with.property('from').equal('country');
+            expect(query[0]['$lookup']).with.property('let').with.property('countryId');
+            expect(query[0]['$lookup']).with.property('pipeline').with.length(2);
+            expect(query[0]['$lookup']).with.property('as').equal('countryId');
+            expect(query[1]).with.property('$unwind');
+            expect(query[1]['$unwind']).with.property('path').equal('$countryId');
+        });
+    });
+
+    describe('buildSearchSubQuery', () => {
+        it('Should return null', () => {
+            const query = QueryBuilderUtil.BuildSearchSubQuery();
+            expect(query).to.be.null;
+        });
+
+        it('Should return query with search', () => {
+            const uniqueId = 'countryId';
+            const subSearch = 'test';
+            const fieldToSearch = ['test'];
+
+            const query = QueryBuilderUtil.BuildSearchSubQuery(uniqueId, subSearch, fieldToSearch);
+
+            expect(query).with.property('$match');
+            expect(query['$match']).with.property('$or').to.length.least(1);
         });
     });
 });

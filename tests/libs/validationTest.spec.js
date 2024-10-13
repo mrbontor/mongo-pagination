@@ -64,35 +64,63 @@ describe('Validation', () => {
 
         it('Should return true ', () => {
             queryAgregate[0].collectionName = 'test';
-            let valid = Validation.ValidateAgregation();
+            let valid = Validation.ValidateAggregation();
             expect(valid).to.be.true;
         });
 
         it('Should return error if there is no params aggregation query ', () => {
             try {
-                Validation.ValidateAgregation();
+                Validation.ValidateAggregation();
             } catch (error) {
-                expect(error.message).to.equal('Agregation query must have property `collectionName` and `uniqueId`');
+                expect(error.message).to.equal(
+                    `Aggregation query must have properties 'collectionName' and 'uniqueId'`
+                );
             }
         });
 
-        it('Should return error if the params Object is not competible ', () => {
+        it('Should return error if the params Object of aggregation is not competible ', () => {
             try {
-                Validation.ValidateAgregation(queryAgregate);
+                Validation.ValidateAggregation(queryAgregate);
             } catch (error) {
-                expect(error.message).to.equal('Agregation query must have property `collectionName` and `uniqueId`');
+                expect(error.message).to.equal(
+                    `Aggregation query must have properties 'collectionName' and 'uniqueId'`
+                );
             }
         });
 
-        it('Should return error if the params Object is not competible ', () => {
+        it('Should return error if the params Object of aggregation is not competible ', () => {
             try {
-                Validation.ValidateAgregation([
-                    {
-                        collectionName: 'test'
-                    }
-                ]);
+                Validation.ValidateAggregation([{ collectionName: 'test' } ]);
             } catch (error) {
-                expect(error.message).to.equal('Agregation query must have property `collectionName` and `uniqueId`');
+                expect(error.message).to.equal(
+                    `Aggregation query must have properties 'collectionName' and 'uniqueId'`
+                );
+            }
+        });
+
+        it('Should return error if one on more of key of aggregation are unknow', () => {
+            try {
+                Validation.ValidateAggregation([{ collectionName: 'test', uniqueId: 'test', aigo: 'bad' } ]);
+            } catch (error) {
+                expect(error.message).to.equal(
+                    `Aggregation item at index 0 contains an invalid property: aigo`
+                );
+            }
+        });
+
+        it('Should return error if one on more of key of aggregation are unknow', () => {
+            try {
+                Validation.ValidateAggregation([{ collectionName: 'test', uniqueId: 'test', subSearch: 1 } ]);
+            } catch (error) {
+                expect(error.message).to.equal(`subSearch must be a string`);
+            }
+        });
+
+        it('Should return error if one on more of key of aggregation are unknow', () => {
+            try {
+                Validation.ValidateAggregation([{ collectionName: 'test', uniqueId: 'test', subSearch: 'test', fieldToSearch: 'test' } ]);
+            } catch (error) {
+                expect(error.message).to.equal(`fieldToSearch must be an array`);
             }
         });
     });

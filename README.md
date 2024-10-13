@@ -63,20 +63,23 @@ buildPagination: async (
 
 -   ##### payload
 
-    there are 5 availabe parameters for payload and those are optianal:
+    the availabe parameters for payload and those are optional:
 
     -   `sortBy` as `string`, _default_ = `updatedAt`
     -   `sortType` as `number|string` || `asc|1|desc|-1`, default = `1`
     -   `search` as `string`, _default_ = `null`
     -   `page` as `number`, _default_ = `1`
     -   `size` as `number`, _default_ = `10`
+    -   `filter` as `array`, Array<Array[[field, value, operator]]>
+
+    `filter` is used to filtering the data comparing to the value from main collection. Use the mongo [operator](https://www.mongodb.com/docs/manual/reference/operator/query/) without `$`. `filter` and `search` also can combined.
 
     Noted that if there is no User's query, then set it to be `null`.
 
     If `payload === null`, then it will use default below
 
-    ```
-    payload : { sort: { updatedAt: 1 }, search: null, page: 1, size: 10 }
+    ```js
+    payload : { sort: { updatedAt: 1 }, search: null, page: 1, size: 10, filter: [] }
     ```
 
     The `payload.search` is used to search(`%s%`) within the fields of [fieldSearch](#fieldsearch).
@@ -92,6 +95,7 @@ buildPagination: async (
         sortBy: 'first_name',
         sortType: 'desc',
         search: 'my first_name',
+        filter: [[ "email","mrbontor@gmail.com", 'eq']]
         page: 2,
         size: 2
     };
@@ -113,7 +117,7 @@ buildPagination: async (
     That is used to get all fields on the collection. Please consider to provide [fieldSearch](#fieldsearch) and
     [projection](#projection), it will also `increase` the `query performance` because we will only do `once` `query`.
 
-    ex. meaning: I only want this fields `first_name`, `last_name`, `email` to be `searcable`, then i put them like in
+    ex. meaning: I only want this fields `first_name`, `last_name`, `email` to be `searchable`, then put them like in
     example below.
 
     example:
@@ -172,7 +176,7 @@ buildPagination: async (
     ];
     ```
 
-    __**New Feature** in the `lastest version`.__
+     __**New Feature** on [v1.1.1](https://github.com/mrbontor/mongo-pagination/releases/tag/v1.1.1)__
     now its able to filter/search data in sub collections.
 
     You only need to add new keys (`subSearch` and `fieldToSearch`) in paramater aggregation, the config will be like:
@@ -197,8 +201,23 @@ buildPagination: async (
 
     __Note: even though the field `countryId` and `cityId` are not provided in the [projection](#projection), the filtering/search will be also works.__
 
-
-
+     __**New Feature** on [v1.2.1](https://github.com/mrbontor/mongo-pagination/releases/tag/v1.2.1)__
+    now its able to use [projection](https://www.mongodb.com/docs/manual/reference/operator/projection/positional) in sub collections. 
+    the format value for projection following the mongodb or use an array instead.
+    
+    _Noted: its recommended to use `projection` while using sub collection to enhance the perfomance of the query_
+    ```js
+    const aggregation = [
+        {
+            collectionName: 'country',
+            uniqueId: 'countryId',
+            subSearch: 'country name',
+            fieldToSearch: ['name'] // field name country
+            projection: {name: 1, city: 1} // or ['name', 'city']
+        },
+        ...
+    ]
+    ```
 
 ### Usage
 
@@ -301,9 +320,16 @@ return pagination;
 ```
 
 ## TO DO
+- [x] allow to use `projection` when join collection(s)
+- [x] enable to filter using field instead
+- [x] enable to use `projection` for sub collection
+- [ ] enable filter for sub collection
 
-    - allow to use `projection` when join collection(s)
-    - enable to filter using field instead
+## New Release > v1.1.*
+- allow to use `projection` when join collection(s)
+- enable to filter using field instead
+- enable to use `projection` for sub collection
+- change LICENCSE, my bad.
 
 ## Tests
 

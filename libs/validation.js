@@ -1,46 +1,54 @@
+const Config = require('../configs/index.json');
 const validation = {
     /**
-     *
-     * @param {ObjectId} ObjectId
-     * @returns String
+     * @param {string} ObjectId
+     * @returns {boolean}
      */
-    ObjectId: (ObjectId) => {
-        const regex = /^[0-9a-fA-F]{24}$/;
-
-        return regex.test(ObjectId);
-    },
+    ObjectId: (ObjectId) => /^[0-9a-fA-F]{24}$/.test(ObjectId),
 
     /**
-     *
-     * @param {Object} mongo
-     * @param {void} mongo.client = mongo connection
-     * @param {string} mongo.collection = collection name
+     * @param {{ client?: any, collection?: string }} mongo
+     * @throws {Error}
+     * @returns {true}
      */
     ValidateMongoQuery: (mongo) => {
-        if (typeof mongo === 'undefined') throw new Error('Mongo configuration must be initiated!');
-        if (typeof mongo.client === 'undefined') throw new Error('Property `client` must be defined!');
-        if (typeof mongo.collection === 'undefined') throw new Error('Property `collection` must be defined!');
-
+        if (!mongo) throw new Error('Mongo configuration must be initiated!');
+        const { client, collection } = mongo;
+        if (!client) throw new Error('Property `client` must be defined!');
+        if (!collection) throw new Error('Property `collection` must be defined!');
         return true;
     },
 
     /**
      * Validate payload aggregation
-     * @param {Array<{collectionName: string, uniqueId:string}>} array
-     * @returns
+     * @param {Array<Object>} array
+     * @throws {Error}
+     * @returns {true}
      */
-    ValidateAgregation: (array) => {
-        if (typeof array !== 'undefined' && array.length > 0) {
-            const isValidKeys = array.every((item) => item.collectionName && item.uniqueId);
-            if (!isValidKeys) {
-                throw new Error('Agregation query must have property `collectionName` and `uniqueId`');
+    ValidateAggregation: (array = []) => {
+        const aggregationKeys = Config.subCollectionProperties;
+        const requiredKeys = Config.subCollectionRequiredProperties;
+
+        array.forEach((item, index) => {
+            requiredKeys.forEach((key) => {
+                if (!item.hasOwnProperty(key)) {
+                    throw new Error(`Aggregation query must have properties 'collectionName' and 'uniqueId'`);
+                }
+            });
+            Object.keys(item).forEach((key) => {
+                if (!aggregationKeys.includes(key)) {
+                    throw new Error(`Aggregation item at index ${index} contains an invalid property: ${key}`);
+                }
+            });
+            if (item.hasOwnProperty('subSearch') && typeof item.subSearch !== 'string') {
+                throw new Error(`subSearch must be a string`);
             }
-            return true;
-            // const isObjectId = array.every((item) => validation.ObjectId(item.uniqueId));
-            // if (!isObjectId) {
-            //     throw new Error('Unique Id should be in format ObjectId');
-            // }
-        }
+
+            if (item.hasOwnProperty('fieldToSearch') && !Array.isArray(item.fieldToSearch)) {
+                throw new Error(`fieldToSearch must be an array`);
+            }
+        });
+
         return true;
     }
 };
