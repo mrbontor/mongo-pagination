@@ -1,47 +1,32 @@
-const Config = require('../configs');
+const Config = require('../configs/index.json');
 
-const toLowerCaseString = (string) => {
-    return string.toString().toLocaleLowerCase();
-};
+const toLowerCaseString = (string) => string.toString().toLowerCase();
 
 /**
  * Get type sorting query
- * @param {String} type
+ * @param {string} [type='1']
+ * @returns {number}
  */
-const getTypeSort = (type) => {
-    const newType = type ? toLowerCaseString(type) : '1';
-
-    switch (newType) {
-        case '-1':
-        case 'desc':
-            return -1;
-        case '1':
-        case 'asc':
-            return 1;
-
-        default:
-            return 1;
-    }
+const getTypeSort = (type = '1') => {
+    const newType = toLowerCaseString(type);
+    return ['desc', '-1'].includes(newType) ? -1 : 1;
 };
 
 /**
  * Set sorting for query
- * @param {Object} payload
- * @param {number} payload.sortType
- * @param {string} payload.sortBy
- * @returns
+ * @param {{ sortType?: string|number, sortBy?: string }} payload
+ * @returns {{ [key: string]: number }}
  */
 const setSorting = (payload) => {
     const sortType = payload?.sortType ? getTypeSort(payload.sortType) : 1;
     const sortBy = payload?.sortBy ? payload.sortBy : Config.default.sorting;
-
     return { [sortBy]: sortType };
 };
 
 /**
  * Filter data Boolean String
  * @param {Object} payload
- * @example status = "true, false"
+ * @returns {Object|null}
  */
 const handleFieldBoolean = (payload) => {
     if (!payload) return null;
@@ -67,63 +52,123 @@ const handleFieldBoolean = (payload) => {
 
 /**
  * Set up fields to be searchable
- * @param {String} search - string to be found
- * @param {Array<string>} fieldToSearch - fields seachable
- * @param {Object} projection - default fields for seachable if empty
+ * @param {string} search - string to be found
+ * @param {string[]} fieldToSearch - fields searchable
+ * @returns {Object[]}
  */
-const handleFieldSearch = (search, fieldToSearch) => {
-    const results = [];
-    let querySearch = {};
-    fieldToSearch.forEach((field) => {
-        results.push({ [field]: { $regex: search, $options: 'i' } });
-    });
-    return results;
-};
+const handleFieldSearch = (search, fieldToSearch) =>
+    fieldToSearch.map((field) => ({ [field]: { $regex: search, $options: 'i' } }));
 
 /**
  * Generate Query pagination
  * @param {Object} payload - an Object for user filter
- * @param {string} payload.sortBy - sort data by sortBy
- * @param {string|number} payload.sortType default 1 || ASC
- * @param {string} payload.search - text to be search
- *
- * @param {Array<{string: number}>} fieldToSearch - filters fields that can be found
- * @param {Object<number>} projection - filter output of query || if not setup, will be taken from collection
- * @param {Array<{collectionName: string, uniqueId:string}>} aggregate -- agregation to other collection
- * @returns
+ * @param {string[]} fieldToSearch - filters fields that can be found
+ * @param {Object} projection - filter output of query
+ * @param {Array<{collectionName: string, uniqueId: string}>} aggregate - aggregation to other collection
+ * @returns {Object[]}
  */
 const buildQueryMongoPagination = (payload, fieldToSearch, projection, aggregate) => {
-    let query = {};
+    const query = handleFieldBoolean(payload) || {};
 
-    const isStatusFieldExist = handleFieldBoolean(payload);
-    if (isStatusFieldExist) query = isStatusFieldExist;
-
-    const search = payload.search || null;
-    if (search && fieldToSearch && fieldToSearch.length > 0) {
-        const setFieldToSearch = handleFieldSearch(search, fieldToSearch);
-        query.$or = setFieldToSearch;
+    if (payload.search && fieldToSearch?.length) {
+        query.$or = handleFieldSearch(payload.search, fieldToSearch);
     }
 
-    let finalQuery = [
+    const baseQuery = [
         { $match: query },
         { $sort: payload.sort },
         { $skip: (payload.page - 1) * payload.size },
         { $limit: payload.size },
         { $project: projection }
     ];
-    if (aggregate.length > 0) {
-        //need to put aggregation query exact below of the  `{ $match: query }`,
-        finalQuery.splice(1, 0, ...aggregate);
+
+    if (aggregate.length) {
+        baseQuery.splice(1, 0, ...aggregate);
     }
 
-    return finalQuery;
+    return baseQuery;
 };
+
+// start helper for sub agregation
+
+/**
+ * handle payload projection of sub collection
+ * @param {Object|| Array<string>} project
+ * @returns {Object}
+ */
+const buildProjectionSubQuery = (project) => {
+    if (!project) return null;
+    let preProjection = {};
+    if (Array.isArray(project)) {
+        project.forEach((key) => (preProjection[key] = 1));
+    } else if (typeof project === 'object') {
+        preProjection = project;
+    }
+    const isHaveKeys = Object.keys(preProjection).length > 0;
+    return isHaveKeys ? { $project: preProjection } : null;
+};
+
+/**
+ * setup base query aggregation of sub collection
+ * @param { collectionName: string, uniqueId: string, projection: Object|| Array<string> } - payload
+ * @returns {Array<object>}
+ */
+const buildSubQueryAndProjection = ({ collectionName, uniqueId, projection }) => {
+    const queryJoin = {
+        $lookup: {
+            from: collectionName,
+            let: { [uniqueId]: { $toObjectId: `$${uniqueId}` } },
+            pipeline: [{ $match: { $expr: { $eq: ['$_id', `$$${uniqueId}`] } } }],
+            as: uniqueId
+        }
+    };
+    const { pipeline } = queryJoin.$lookup;
+    const dataProjection = buildProjectionSubQuery(projection);
+    if (dataProjection) {
+        pipeline.push(dataProjection);
+    }
+
+    const finalLookup = [
+        queryJoin,
+        {
+            $unwind: {
+                path: `$${uniqueId}`,
+                preserveNullAndEmptyArrays: true
+            }
+        }
+    ];
+    return finalLookup;
+};
+
+/**
+ * setup query search for sub collection
+ * @param {{uniqueId: string, subSearch: string, fieldToSearch: Array<string> }} - payload
+ * @throws {Error}
+ * @returns {Object}
+ */
+const buildSearchSubQuery = (uniqueId, subSearch, fieldToSearch) => {
+    if (!subSearch || !Array.isArray(fieldToSearch) || fieldToSearch.length === 0) {
+        return null;
+    }
+
+    const searchConditions = fieldToSearch.map((field) => ({
+        [`${uniqueId}.${field}`]: { $regex: subSearch, $options: 'i' }
+    }));
+
+    return { $match: { $or: searchConditions } };
+};
+
+// end helper for sub agregation
 
 module.exports = {
     ToLowerCaseString: toLowerCaseString,
     GetTypeSort: getTypeSort,
+    SetTypeSort: getTypeSort,
     SetSorting: setSorting,
     HandleFieldSearch: handleFieldSearch,
     HandleFieldBoolean: handleFieldBoolean,
-    BuildQueryMongoPagination: buildQueryMongoPagination
+    BuildQueryMongoPagination: buildQueryMongoPagination,
+    BuildProjectionSubQuery: buildProjectionSubQuery,
+    BuildSubQueryAndProjection: buildSubQueryAndProjection,
+    BuildSearchSubQuery: buildSearchSubQuery
 };

@@ -172,7 +172,7 @@ buildPagination: async (
     ];
     ```
 
-    __**New Feature** in the `lastest version`.__
+     __**New Feature** on [v1.1.1](https://github.com/mrbontor/mongo-pagination/releases/tag/v1.1.1)__
     now its able to filter/search data in sub collections.
 
     You only need to add new keys (`subSearch` and `fieldToSearch`) in paramater aggregation, the config will be like:
@@ -197,8 +197,23 @@ buildPagination: async (
 
     __Note: even though the field `countryId` and `cityId` are not provided in the [projection](#projection), the filtering/search will be also works.__
 
-
-
+     __**New Feature** on [v1.2.1](https://github.com/mrbontor/mongo-pagination/releases/tag/v1.2.1)__
+    now its able to use [projection](https://www.mongodb.com/docs/manual/reference/operator/projection/positional) in sub collections. 
+    the format value for projection following the mongodb or use an array instead.
+    
+    _Noted: its recommended to use `projection` while using sub collection to enhance the perfomance of the query_
+    ```js
+    const aggregation = [
+        {
+            collectionName: 'country',
+            uniqueId: 'countryId',
+            subSearch: 'country name',
+            fieldToSearch: ['name'] // field name country
+            projection: {name: 1, city: 1} // or ['name', 'city']
+        },
+        ...
+    ]
+    ```
 
 ### Usage
 
@@ -301,9 +316,8 @@ return pagination;
 ```
 
 ## TO DO
-
-    - allow to use `projection` when join collection(s)
-    - enable to filter using field instead
+- [x] allow to use `projection` when join collection(s)
+- enable to filter using field instead
 
 ## Tests
 

@@ -5,6 +5,6 @@ const MP = require('../../libs/');
 
 describe('Mongodb Pagination', () => {
     it('Should return true', () => {
-       expect(MP).to.have.property('buildPagination');
+       expect(MP).with.property('buildPagination');
     });
 });

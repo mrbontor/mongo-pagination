@@ -1,4 +1,5 @@
-const { ValidateAgregation } = require('./validation');
+const { ValidateAggregation } = require('./validation');
+const { BuildSubQueryAndProjection, BuildSearchSubQuery } = require('./queryBuilder');
 
 /**
  * Setup mongo Pipeline Agregation
@@ -9,57 +10,28 @@ const { ValidateAgregation } = require('./validation');
  * @param {Array<string>} query.fieldToSearch
  * @returns
  */
-const pipeline = (query) => {
-    const { collectionName, uniqueId, subSearch, fieldToSearch } = query;
+const pipeline = ({ collectionName, uniqueId, subSearch, fieldToSearch, projection = {} }) => {
+    const baseQuery = BuildSubQueryAndProjection({ collectionName, uniqueId, projection });
 
-    const queryLookup = [
-        {
-            $lookup: {
-                from: collectionName,
-                let: { [uniqueId]: { $toObjectId: `$${uniqueId}` } },
-                pipeline: [{ $match: { $expr: { $eq: ['$_id', `$$${uniqueId}`] } } }],
-                as: `${uniqueId}`
-            }
-        },
-        {
-            $unwind: {
-                path: `$${uniqueId}`,
-                preserveNullAndEmptyArrays: true
-            }
-        }
-    ];
-    if (subSearch && fieldToSearch && fieldToSearch.length > 0) {
-        const newearch = fieldToSearch.map((el) => {
-            const key = `${uniqueId}.${el}`;
-            return {
-                [key]: {
-                    $regex: subSearch,
-                    $options: 'i'
-                }
-            };
-        });
-        queryLookup.push({
-            $match: {
-                $or: newearch
-            }
-        });
+    if (subSearch && fieldToSearch?.length) {
+        const querySubSearch = BuildSearchSubQuery(uniqueId, subSearch, fieldToSearch);
+        baseQuery.push(querySubSearch);
     }
-
-    return queryLookup;
+    return baseQuery;
 };
 
 /**
- * Generate mongo Pipeline Agregation
- * @param {Array<{collectionName: string, uniqueId:string}>} aggregation
- * @returns
+ * Generate mongo Pipeline Aggregation
+ * @param {Array<{collectionName: string, uniqueId: string}>} aggregation
+ * @returns {Array<Object>}
  */
-const generateQueryAgregation = (aggregation) => {
-    ValidateAgregation(aggregation);
-
-    const results = aggregation.map((query) => pipeline(query));
-    return results.reduce((curr, prev) => curr.concat(prev), []);
+const generateQueryAggregation = (aggregation) => {
+    ValidateAggregation(aggregation);
+    if (aggregation?.length) {
+        return aggregation.flatMap(pipeline);
+    }
 };
 
 module.exports = {
-    GenerateQueryAgregation: generateQueryAgregation
+    GenerateQueryAggregation: generateQueryAggregation
 };

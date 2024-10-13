@@ -1,10 +1,12 @@
 {
-  "booleanFields": ["status", "Status", "isActive", "active", "Active"],
-  "default": {
-    "sorting": "updatedAt",
-    "size": 10,
-    "page": 1
-  },
-  "ascending": "ASC",
-  "descending": "DESC"
+    "booleanFields": ["status", "Status", "isActive", "active", "Active"],
+    "default": {
+        "sorting": "updatedAt",
+        "size": 10,
+        "page": 1
+    },
+    "ascending": "ASC",
+    "descending": "DESC",
+    "subCollectionRequiredProperties": ["collectionName", "uniqueId"],
+    "subCollectionProperties": ["collectionName", "uniqueId", "subSearch", "fieldToSearch", "projection"]
 }
