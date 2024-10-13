@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/mrbontor/mongo-pagination/compare/v1.1.1...v1.2.0) (2024-10-13)
+
+
+### Features
+
+* enable filtering data with exact value for main collection ([41800c6](https://github.com/mrbontor/mongo-pagination/commit/41800c627803648105dadd73d5c02804d303443c))
+* enable projection for sub collection, updated JSDoc, fixed some wording and updated code style ([61ad8e2](https://github.com/mrbontor/mongo-pagination/commit/61ad8e2fb90c3167931a3ea76be97d4f47589192))
+
+
+### Bug Fixes
+
+* change license ([260820f](https://github.com/mrbontor/mongo-pagination/commit/260820fc53c8ea00eb6ca769ac1076c6e337388e))
+
 ### [1.1.1](https://github.com/mrbontor/mongo-pagination/compare/v1.1.0...v1.1.1) (2023-02-26)
 
 
