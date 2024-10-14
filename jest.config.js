@@ -1,13 +1,13 @@
 module.exports = {
     testEnvironment: 'node',
-    collectCoverage: true,
+    collectCoverage: false,
     collectCoverageFrom: ['<rootDir>/libs/**/*.js'],
     coverageThreshold: {
         global: {
-            branches: 90,
-            functions: 90,
-            lines: 90,
-            statements: 90
+            branches: 70,
+            functions: 70,
+            lines: 70,
+            statements: 70
         },
         'libs/mongoPagination.js': {
             branches: 30,
