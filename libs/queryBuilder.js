@@ -29,7 +29,7 @@ const setSorting = (payload) => {
  * @returns {Object|null}
  */
 const handleFieldBoolean = (payload) => {
-    if (!payload) return null;
+    if (!payload || !Object.keys(payload).length) return null;
     const keywords = Config.booleanFields;
 
     let query = {};
@@ -46,7 +46,7 @@ const handleFieldBoolean = (payload) => {
         }
     });
 
-    const resulst = Object.keys(query).length !== 0 ? query : null;
+    const resulst = Object.keys(query).length !== 0 ? query : {};
     return resulst;
 };
 
@@ -65,11 +65,33 @@ const handleFieldSearch = (search, fieldToSearch) =>
  * @returns {Object}
  */
 const buildFilterQuery = (filters) => {
+    const allowedOperators = Config.allowedOperators;
     const query = {};
-    filters.forEach(([field, value, operator]) => {
-        operator = operator || 'eq'; // default operator
-        query[field] = { [`$${operator}`]: value };
+
+    filters.forEach((filter) => {
+        if (!Array.isArray(filter) || filter.length < 2 || filter.length > 3) {
+            throw new Error(
+                `Invalid filter format: ${JSON.stringify(filter)}. Expected format: [field, value, operator?].`
+            );
+        }
+
+        const [field, value, operator = 'eq'] = filter;
+
+        if (!allowedOperators.includes(operator)) {
+            throw new Error(`Invalid operator: ${operator}. Allowed operators are ${allowedOperators.join(', ')}.`);
+        }
+
+        if (typeof field !== 'string' || field.trim() === '') {
+            throw new Error(`Invalid field: ${field}. Field must be a non-empty string.`);
+        }
+        if (value === undefined) {
+            throw new Error(`Invalid value for field ${field}: Value cannot be undefined.`);
+        }
+
+        const mongoOperator = `$${operator}`;
+        query[field] = { [mongoOperator]: value };
     });
+
     return query;
 };
 
@@ -83,26 +105,27 @@ const buildFilterQuery = (filters) => {
  */
 const buildQueryMongoPagination = (payload, fieldToSearch, projection, aggregate) => {
     let query = handleFieldBoolean(payload) || {};
-    if (payload.search && fieldToSearch?.length) {
+
+    if (payload.search && fieldToSearch.length) {
         query.$or = handleFieldSearch(payload.search, fieldToSearch);
     }
 
-    if (payload?.filter?.length) {
-        query = { ...query, ...buildFilterQuery(payload.filter) };
+    if (payload.filter?.length) {
+        Object.assign(query, buildFilterQuery(payload.filter));
     }
 
+    // Susun baseQuery pipeline awal
     const baseQuery = [
         { $match: query },
-        { $sort: payload.sort },
-        { $skip: (payload.page - 1) * payload.size },
-        { $limit: payload.size },
-        { $project: projection }
+        ...aggregate, // Masukkan agregat jika ada
+        { $sort: payload.sort || {} },
+        { $skip: Math.max(0, (payload.page - 1) * payload.size) },
+        { $limit: payload.size || 10 } // Default limit jika tidak diberikan
     ];
 
-    if (aggregate.length) {
-        baseQuery.splice(1, 0, ...aggregate);
+    if (projection) {
+        baseQuery.push({ $project: projection });
     }
-
     return baseQuery;
 };
 

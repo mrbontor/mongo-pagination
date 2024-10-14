@@ -8,5 +8,6 @@
     "ascending": "ASC",
     "descending": "DESC",
     "subCollectionRequiredProperties": ["collectionName", "uniqueId"],
-    "subCollectionProperties": ["collectionName", "uniqueId", "subSearch", "fieldToSearch", "projection"]
+    "subCollectionProperties": ["collectionName", "uniqueId", "subSearch", "fieldToSearch", "projection"],
+    "allowedOperators": ["eq", "gte", "lte", "gt", "lt", "ne", "in", "nin"]
 }
