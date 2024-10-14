@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/mrbontor/mongo-pagination/compare/v1.2.1...v1.2.2) (2024-10-14)
+
+
+### Bug Fixes
+
+* set default value while generating query ([6b814e7](https://github.com/mrbontor/mongo-pagination/commit/6b814e70e30fa626f860635d33fbba33d8501dc8))
+
 ### [1.2.1](https://github.com/mrbontor/mongo-pagination/compare/v1.2.0...v1.2.1) (2024-10-14)
 
 
