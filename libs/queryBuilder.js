@@ -103,7 +103,7 @@ const buildFilterQuery = (filters) => {
  * @param {Array<{collectionName: string, uniqueId: string}>} aggregate - aggregation to other collection
  * @returns {Object[]}
  */
-const buildQueryMongoPagination = (payload, fieldToSearch, projection, aggregate) => {
+const buildQueryMongoPagination = (payload, fieldToSearch = [], projection = null, aggregate = []) => {
     let query = handleFieldBoolean(payload) || {};
 
     if (payload.search && fieldToSearch.length) {
