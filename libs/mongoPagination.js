@@ -19,8 +19,8 @@ const runQuery = async ({ client, collection }, query) => {
                 }
             }
         ];
-
-        return client.collection(collection).aggregate(queryAggregate).toArray();
+        const result = await client.collection(collection).aggregate(queryAggregate).toArray();
+        return result;
     } catch (error) {
         throw error;
     }
