@@ -83,7 +83,7 @@ const setupDefaultPayload = (payload) => ({
  * @param {Array<{collectionName: string, uniqueId: string}>} [aggregate=[]] - Aggregation to other sub collections
  * @returns {Promise<Object>}
  */
-const buildPagination = async (mongoConfig, payload, fieldToSearch = [], projection, aggregate = []) => {
+const buildPagination = async (mongoConfig, payload, fieldToSearch, projection, aggregate) => {
     try {
         ValidateMongoQuery(mongoConfig);
 
