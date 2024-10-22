@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/mrbontor/mongo-pagination/compare/v1.2.0...v1.3.0) (2024-10-22)
+
+
+### Features
+
+* added validator to check mongodb opertaor ([35ed020](https://github.com/mrbontor/mongo-pagination/commit/35ed020b9b070e7eb84d05ccdf9e21d501c4c66b))
+* create issue templates ([666335e](https://github.com/mrbontor/mongo-pagination/commit/666335ed5cdf02caa3bf642e0759633c5166c50f))
+
+
+### Bug Fixes
+
+* correct pagination totalRecord calculation after applying filters ([2454f8a](https://github.com/mrbontor/mongo-pagination/commit/2454f8a34ac280c0cc831eeca3fb9f0cb837e4cf))
+* set default value while generating query ([7039407](https://github.com/mrbontor/mongo-pagination/commit/7039407513da33c40781a4b02f2b679bd7304a5e))
+
 ### [1.2.2](https://github.com/mrbontor/mongo-pagination/compare/v1.2.1...v1.2.2) (2024-10-14)
 
 

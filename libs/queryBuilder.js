@@ -114,13 +114,13 @@ const buildQueryMongoPagination = (payload, fieldToSearch = [], projection = nul
         Object.assign(query, buildFilterQuery(payload.filter));
     }
 
-    // Susun baseQuery pipeline awal
+    // Set up the initial baseQuery pipeline
     const baseQuery = [
         { $match: query },
-        ...aggregate, // Masukkan agregat jika ada
+        ...aggregate,
         { $sort: payload.sort || {} },
         { $skip: Math.max(0, (payload.page - 1) * payload.size) },
-        { $limit: payload.size || 10 } // Default limit jika tidak diberikan
+        { $limit: payload.size || 10 }
     ];
 
     if (projection) {
@@ -210,5 +210,6 @@ module.exports = {
     BuildQueryMongoPagination: buildQueryMongoPagination,
     BuildProjectionSubQuery: buildProjectionSubQuery,
     BuildSubQueryAndProjection: buildSubQueryAndProjection,
-    BuildSearchSubQuery: buildSearchSubQuery
+    BuildSearchSubQuery: buildSearchSubQuery,
+    BuildFilterQuery: buildFilterQuery
 };
