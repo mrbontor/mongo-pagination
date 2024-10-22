@@ -1,7 +1,7 @@
 const Config = require('../configs/index.json');
 const { ValidateMongoQuery } = require('./validation');
 const { GenerateQueryAggregation } = require('./generateAgregation');
-const { BuildQueryMongoPagination, SetSorting } = require('./queryBuilder');
+const { BuildQueryMongoPagination, SetSorting, BuildFilterQuery } = require('./queryBuilder');
 
 /**
  * Running query without functionality of Pagination
@@ -9,18 +9,30 @@ const { BuildQueryMongoPagination, SetSorting } = require('./queryBuilder');
  * @param {Array<any>} query
  * @returns {Promise<any>}
  */
-const runQuery = async ({ client, collection }, query) => {
+const runQuery = async ({ client, collection }, query, payloadFilter = []) => {
     try {
-        const queryAggregate = [
-            {
-                $facet: {
-                    data: query,
-                    count: [{ $group: { _id: 1, totalRecord: { $sum: 1 } } }]
+        if (payloadFilter?.length) {
+            const queryAggregate = [
+                {
+                    $facet: {
+                        data: query,
+                        count: [{ $group: { _id: 1, totalRecord: { $sum: 1 } } }]
+                    }
                 }
+            ];
+            return await client.collection(collection).aggregate(queryAggregate).toArray();
+        }
+        //re-generate query filter to count documet
+        const queryFilter = BuildFilterQuery(payloadFilter);
+        const totalRecord = await client.collection(collection).countDocuments(queryFilter);
+        const result = await client.collection(collection).aggregate(query).toArray();
+
+        return [
+            {
+                data: result,
+                count: [{ totalRecord }]
             }
         ];
-        const result = await client.collection(collection).aggregate(queryAggregate).toArray();
-        return result;
     } catch (error) {
         throw error;
     }
@@ -96,7 +108,7 @@ const buildPagination = async (mongoConfig, payload, fieldToSearch, projection, 
 
         const queryAgregate = GenerateQueryAggregation(aggregate);
         const queryMongo = BuildQueryMongoPagination(newPayload, newFieldToSearch, newProjection, queryAgregate);
-        const results = await runQuery(mongoConfig, queryMongo);
+        const results = await runQuery(mongoConfig, queryMongo, payload.filter);
 
         delete newPayload.search;
         return {
